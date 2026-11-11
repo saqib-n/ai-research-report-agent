@@ -1,0 +1,20 @@
+{
+  "ai agent market": {
+    "keywords": ["ai agent", "agentic", "ai agents", "autonomous agent"],
+    "findings": [
+      {"source": "industry-report-2026.com", "content": "Demand for AI agent development on freelance platforms grew sharply through 2025 and into 2026, with businesses increasingly deploying agents to handle operational tasks like support, lead qualification, and internal reporting rather than just chat."},
+      {"source": "market-analysis-blog.com", "content": "The most commonly requested agent projects are multi-agent customer support systems, sales outreach automation, and workflow automation connecting tools like CRMs and messaging platforms."},
+      {"source": "tech-trends-quarterly.com", "content": "A recurring theme among businesses adopting AI agents is preferring a narrow, well-scoped agent that does one job reliably over a broad general-purpose assistant that's harder to trust for specific tasks."},
+      {"source": "developer-survey-2026.com", "content": "LangGraph and similar orchestration frameworks have become popular for building agents specifically because they make the decision logic explicit and auditable, which matters for business-critical use cases like refunds or escalations."}
+    ]
+  },
+  "reusable water bottle market": {
+    "keywords": ["water bottle", "reusable bottle", "hydration"],
+    "findings": [
+      {"source": "consumer-goods-report.com", "content": "The reusable water bottle market has continued steady growth, driven by sustainability-conscious consumers and increased retail availability of insulated stainless steel options."},
+      {"source": "retail-trends.com", "content": "Insulated stainless steel bottles remain the dominant sub-category, with plastic and glass options making up a smaller, more price-sensitive share of the market."},
+      {"source": "sustainability-index.com", "content": "Brands emphasizing recycled materials and take-back programs have seen stronger customer loyalty compared to brands competing purely on price."},
+      {"source": "ecommerce-insights.com", "content": "Direct-to-consumer bottle brands increasingly compete on customization (color, engraving) rather than just price or capacity."}
+    ]
+  }
+}
