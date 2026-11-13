@@ -126,73 +126,19 @@ python research.py "the AI agent market"
 
 <pre>
 ai-research-report-agent/
-  .env.example                                           # copy to .env and add your key
-  case_study.md                                          # longer write-up of the design
+  .env.example          # copy to .env and add your key
+  case_study.md         # longer write-up of the design
   README.md
-  requirements.txt                                       # dependencies
-  research.py                                            # command line entry point
-  .git/
-    COMMIT_EDITMSG
-    config
-    description
-    HEAD
-    hooks/applypatch-msg.sample
-    hooks/commit-msg.sample
-    hooks/fsmonitor-watchman.sample
-    hooks/post-update.sample
-    hooks/pre-applypatch.sample
-    hooks/pre-commit.sample
-    hooks/pre-merge-commit.sample
-    hooks/pre-push.sample
-    hooks/pre-rebase.sample
-    hooks/pre-receive.sample
-    hooks/prepare-commit-msg.sample
-    hooks/push-to-checkout.sample
-    hooks/sendemail-validate.sample
-    hooks/update.sample
-    index
-    info/exclude
-    logs/HEAD
-    logs/refs/heads/main
-    logs/refs/remotes/origin/main
-    objects/0b/fbe20383b5ac61930d051678eec2962c647717
-    objects/0d/19a37d674a332b9dba9f34ec54f3144a81a21f
-    objects/17/37a3d7fb0e2d28c45197089052fa23d94d5b73
-    objects/3c/3899c44f57a34faaa20a0744718a0bb4a4e45d
-    objects/47/f8295d8413bfbfdcbd68592b137982829d414d
-    objects/4b/d1ad510621b00ac88d1e3d42cd6d6303ee4cd4
-    objects/54/e14255ae455cdae2c14d81c287e815e7482ccc
-    objects/5f/3346834a6acb150c5bbf24ff752202037beb00
-    objects/78/998da0758f803a8b7d9b492206632524003f81
-    objects/7a/3a4f0ab20b8170a7b714479283340f5fe09e10
-    objects/85/fb1b9640f580ce81920b743208fcff4302c859
-    objects/8b/d4ae4e401a098e898fe9e025ae17f3bdd82cfa
-    objects/8e/45a7baf1e2f0f53f312db2684844e7472f3f1b
-    objects/97/f84f032333b48e8d4d664e924e6dedc1f36968
-    objects/a1/3831e7f258e5d5431412b7d3af4dd3647715fd
-    objects/a2/667477f906e25e4d46862b73a0cf1d10163a78
-    objects/a5/364733635c0ac8d6e9918f2cc44b4567a43674
-    objects/b3/18d0ce2eaa85446441dc1fa0407e3e5076227c
-    objects/bb/1d0d20270c6b562a687dd6c5e21f3c4d7ba090
-    objects/c5/4aeb32cf364cf433dfb7c8ce58583bc231b3a2
-    objects/c5/97c23fa30e7a1e2dfac8278bb520f879e325c9
-    objects/de/746f20e8d94bc4bca3a762ef31b38beac8dfce
-    objects/df/4b6bd02ee254746b1e1868dbce85ab3fc36e1e
-    objects/e5/6d0464232e3f00c54b6317bcda0a87126ef783
-    objects/e6/9de29bb2d1d6434b8b29ae775ad8c2e48c5391
-    objects/f6/7a04ab7b587328aba53772f186778dadd43d5b
-    refs/heads/main
-    refs/remotes/origin/main
+  requirements.txt      # dependencies
+  research.py           # command line entry point
   agent/
-    llm.py                                               # picks the model from LLM_MODEL
-    researcher.py                                        # the LangGraph graph: plan, search, evaluate, write
-    search.py                                            # Tavily search with the offline fallback
+    llm.py              # picks the model from LLM_MODEL
+    researcher.py       # the LangGraph graph: plan, search, evaluate, write
+    search.py           # Tavily search with the offline fallback
   data/
-    sample_research/                                     # offline research data for the two demo topics
-  demo/
-    demo.gif
-    demo.mp4
-  tests/                                                 # pytest suite, runs without any API key
+    sample_research/    # offline research data for the two demo topics
+  demo/                 # recording of a live run (GIF and MP4)
+  tests/                # pytest suite, runs without any API key
 </pre>
 
 <h2>Built with</h2>
