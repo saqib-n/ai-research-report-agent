@@ -28,9 +28,11 @@
 
 <h2>See it in action</h2>
 
-<p align="center"><img src="demo/demo.gif" alt="Terminal recording of Research Report Agent running on Google Gemini" width="100%"></p>
+<p align="center"><img src="demo/demo.gif" alt="Research desk screen: the research loop runs step by step on the left and the finished report with sources appears on the right" width="100%"></p>
 
-<p align="center"><sub>Recorded from a real run on Google Gemini (<code>gemini-3.1-flash-lite</code>) on 13 November 2026. Nothing is edited or scripted. Only the waiting time while the model thinks is shortened. <a href="demo/demo.mp4">Download the MP4</a>.</sub></p>
+<p align="center"><sub>Recorded in the built-in research desk from a real run on Google Gemini (<code>gemini-3.1-flash-lite</code>) on 14 November 2026. Nothing is scripted. Only the time spent waiting for the model is fast-forwarded, and the real response times are shown on screen. <a href="demo/demo.mp4">Download the MP4</a>.</sub></p>
+
+<p>Run <code>python app.py</code> and it opens a research desk where you type a topic, watch each round of the loop and read the finished report with its sources. It is the same agent code as the command line version, with a screen on top.</p>
 
 <h2>The problem</h2>
 
@@ -106,6 +108,7 @@ Saved to output/report_the_AI_agent_market.md
 pip install -r requirements.txt
 cp .env.example .env        # on Windows: copy .env.example .env
 # open .env and paste your API key
+python app.py               # opens the research desk at http://localhost:8000
 python research.py "the AI agent market"
 </pre>
 
@@ -131,14 +134,17 @@ ai-research-report-agent/
   README.md
   requirements.txt      # dependencies
   research.py           # command line entry point
+  app.py              # browser research desk, the same agent with a UI
   agent/
     llm.py              # picks the model from LLM_MODEL
     researcher.py       # the LangGraph graph: plan, search, evaluate, write
     search.py           # Tavily search with the offline fallback
   data/
     sample_research/    # offline research data for the two demo topics
-  demo/                 # recording of a live run (GIF and MP4)
+  demo/                 # recording of a live run (GIF, MP4 and a screenshot)
   tests/                # pytest suite, runs without any API key
+  web/
+    index.html          # the research desk, one file, no build step
 </pre>
 
 <h2>Built with</h2>
@@ -152,7 +158,7 @@ pip install -r requirements-dev.txt
 pytest
 </pre>
 
-<p>Seven tests cover the demo search data, the duplicate-finding filter, the round cap and the routing between searching and writing. None of the tests call a model or need an API key, so they run on GitHub Actions on every push. The badge at the top shows the latest result.</p>
+<p>Eight tests cover the demo search data, the duplicate-finding filter, the round cap and the routing between searching and writing, plus the browser screen and its API. None of the tests call a model or need an API key, so they run on GitHub Actions on every push. The badge at the top shows the latest result.</p>
 
 <h2>Roadmap</h2>
 

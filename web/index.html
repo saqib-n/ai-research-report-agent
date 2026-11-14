@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Report Agent</title>
+<style>
+  :root {
+    --bg: #f5f3ee; --paper: #fffdf8; --surface: #fff; --line: #e5e0d5; --line-2: #efebe2;
+    --text: #1d2230; --muted: #6a6f7c; --faint: #a3a6ae;
+    --brand: #1f3a68; --brand-2: #172d52; --brand-soft: #e8edf6; --gold: #b7791f;
+    --ok: #2b8a3e; --work: #1c63c7; --bad: #c92a2a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: var(--text); font: 14px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif; display: flex; flex-direction: column; overflow: hidden; }
+  button { font: inherit; cursor: pointer; }
+  .top { flex: none; padding: 16px 24px 14px; border-bottom: 1px solid var(--line); background: var(--paper); }
+  .row1 { display: flex; align-items: center; gap: 12px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 16px; }
+  .logo .mark { width: 30px; height: 30px; border-radius: 8px; background: var(--brand); display: grid; place-items: center; }
+  .spacer { flex: 1; }
+  .pill { font-size: 12px; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; background: var(--surface); white-space: nowrap; display: inline-flex; gap: 6px; align-items: center; }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); }
+  .ask { margin-top: 12px; display: flex; gap: 10px; }
+  .ask input { flex: 1; border: 1px solid var(--line); background: var(--surface); border-radius: 12px; padding: 11px 14px; font: inherit; font-size: 15px; color: var(--text); min-width: 0; }
+  .ask input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+  .btn { border: 1px solid var(--line); background: var(--surface); color: var(--text); border-radius: 10px; padding: 0 18px; font-weight: 600; white-space: nowrap; }
+  .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .btn.primary:hover { background: var(--brand-2); }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .topics { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12.5px; color: var(--muted); }
+  .topics button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 2px 10px; font-size: 12.5px; color: var(--brand); }
+  .topics button:disabled { opacity: .5; cursor: default; }
+
+  .main { flex: 1; min-height: 0; display: grid; grid-template-columns: 400px 1fr; }
+  .loop { border-right: 1px solid var(--line); overflow-y: auto; padding: 16px 20px 24px; }
+  .loop h3, .side-h { margin: 0 0 10px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 650; }
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 4px; margin-bottom: 16px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .dn rect { fill: #f7f5f0; stroke: #d8d2c4; stroke-width: 1.5; transition: all .3s; }
+  .dn text { font-size: 12.5px; font-weight: 600; fill: var(--muted); transition: fill .3s; }
+  .dn.done rect { fill: #eef6f0; stroke: #8cc99b; } .dn.done text { fill: var(--ok); }
+  .dn.on rect { fill: var(--brand-soft); stroke: var(--work); stroke-width: 2.2; } .dn.on text { fill: var(--work); }
+  .de { fill: none; stroke: #d8d2c4; stroke-width: 1.6; }
+  .de.on { stroke: var(--work); stroke-dasharray: 6 5; animation: flow .7s linear infinite; }
+  @keyframes flow { to { stroke-dashoffset: -11; } }
+  .ev { position: relative; padding: 0 0 14px 24px; animation: in .3s ease; }
+  @keyframes in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  .ev::before { content: ""; position: absolute; left: 7px; top: 18px; bottom: 0; width: 2px; background: var(--line); }
+  .ev:last-child::before { display: none; }
+  .ev::after { content: ""; position: absolute; left: 1px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); border: 2px solid var(--ok); }
+  .ev.work::after { border-color: var(--work); animation: pulse 1s infinite; }
+  .ev.warn::after { border-color: var(--gold); background: var(--gold); }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 4px rgba(28,99,199,.18); } }
+  .ev b { font-size: 13.5px; }
+  .ev .d { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .q { display: block; font-size: 12.5px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 8px; padding: 4px 9px; margin-top: 5px; }
+  .q::before { content: "\201C"; color: var(--faint); }
+  .q::after { content: "\201D"; color: var(--faint); }
+  .empty { color: var(--muted); font-size: 13px; border: 1.5px dashed var(--line); border-radius: 12px; padding: 14px; }
+
+  .report-wrap { overflow-y: auto; padding: 22px 30px 40px; }
+  .paper { max-width: 820px; margin: 0 auto; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 6px 24px rgba(30,30,20,.06); padding: 30px 40px 34px; }
+  .paper .kicker { font-size: 11.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--gold); font-weight: 700; }
+  .paper .stats { display: flex; gap: 14px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px; margin: 6px 0 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .md { font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif; font-size: 16px; line-height: 1.65; color: #23283a; }
+  .md h1 { font-size: 27px; line-height: 1.25; margin: 4px 0 14px; letter-spacing: -.01em; }
+  .md h2 { font-size: 20px; margin: 24px 0 8px; }
+  .md h3 { font-size: 17px; margin: 18px 0 6px; }
+  .md p { margin: 0 0 12px; }
+  .md ul, .md ol { margin: 0 0 12px; padding-left: 22px; }
+  .md li { margin: 4px 0; }
+  .md hr { border: 0; border-top: 1px solid var(--line); margin: 20px 0; }
+  .src { font-family: "Segoe UI", system-ui, sans-serif; font-size: 11.5px; font-weight: 600; color: var(--brand); background: var(--brand-soft); border-radius: 6px; padding: 1px 7px; white-space: nowrap; cursor: pointer; vertical-align: 1px; }
+  .src:hover { background: #d6e0f1; }
+  .sources { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .sources ol { margin: 0; padding-left: 20px; font-size: 13px; color: #3c4152; }
+  .sources li { margin: 6px 0; padding: 4px 8px; border-radius: 8px; transition: background .4s; }
+  .sources li.flash { background: #fff1c7; }
+  .sources li b { color: var(--brand); }
+  .blank { max-width: 520px; margin: 80px auto; text-align: center; color: var(--muted); }
+  .blank h2 { color: var(--text); font-family: Georgia, serif; font-size: 24px; margin: 14px 0 8px; font-weight: 500; }
+  .writing { display: flex; gap: 10px; align-items: center; color: var(--work); }
+  .spin { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: rot .7s linear infinite; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+  .shimmer { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #efebe2 0%, #f8f6f0 50%, #efebe2 100%); background-size: 200% 100%; animation: sh 1.3s infinite; margin: 10px 0; }
+  @keyframes sh { to { background-position: -200% 0; } }
+  .err { color: var(--bad); background: #fdecea; border-radius: 10px; padding: 10px 14px; }
+
+  @media (max-width: 900px) {
+    body { overflow: auto; }
+    .main { grid-template-columns: 1fr; }
+    .loop { border-right: 0; border-bottom: 1px solid var(--line); }
+    .report-wrap { padding: 16px; }
+    .paper { padding: 22px 18px; }
+    .top { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="row1">
+    <div class="logo"><div class="mark"><svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M10 3a7 7 0 015.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1110 3zm0 2a5 5 0 100 10 5 5 0 000-10z"/></svg></div>Research desk</div>
+    <span class="spacer"></span>
+    <span class="pill" id="search-src">search</span>
+    <span class="pill"><i></i><span id="model">model</span></span>
+  </div>
+  <form class="ask" id="form" autocomplete="off">
+    <input id="topic" placeholder="What should the agent research?" maxlength="300" value="">
+    <button class="btn primary" id="go" type="submit">Research</button>
+  </form>
+  <div class="topics" id="topics"></div>
+</header>
+
+<div class="main">
+  <aside class="loop">
+    <h3>Research loop</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 360 120" aria-label="Plan, search, evaluate, loop back to search or write the report">
+        <path class="de" id="d-ps" d="M68 40 H 92"/>
+        <path class="de" id="d-se" d="M164 40 H 188"/>
+        <path class="de" id="d-es" d="M227 58 C 227 98, 128 98, 128 58"/>
+        <path class="de" id="d-ew" d="M266 40 H 290"/>
+        <g class="dn" id="d-plan"><rect x="6" y="22" width="62" height="36" rx="9"/><text x="37" y="45" text-anchor="middle">Plan</text></g>
+        <g class="dn" id="d-search"><rect x="92" y="22" width="72" height="36" rx="9"/><text x="128" y="45" text-anchor="middle">Search</text></g>
+        <g class="dn" id="d-evaluate"><rect x="188" y="22" width="78" height="36" rx="9"/><text x="227" y="45" text-anchor="middle">Evaluate</text></g>
+        <g class="dn" id="d-write_report"><rect x="290" y="22" width="62" height="36" rx="9"/><text x="321" y="45" text-anchor="middle">Write</text></g>
+        <text x="178" y="112" text-anchor="middle" style="font-size:10.5px;fill:#a3a6ae">loops back to search if something is missing</text>
+      </svg>
+    </div>
+    <div id="events"><div class="empty">Pick a topic and press Research. Each step of the loop appears here as it finishes: the queries it planned, what each search round found, and whether it decided to search again.</div></div>
+  </aside>
+
+  <section class="report-wrap" id="report-wrap">
+    <div class="blank" id="blank">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="#d5cfc1"><path d="M6 2h9l5 5v15H6zm8 1.5V8h4.5zM8.5 12h7v1.5h-7zm0 3.5h7V17h-7z"/></svg>
+      <h2>Your report appears here</h2>
+      <div>Every claim ends with the source it came from. If the research is thin on a point, the report says so instead of padding.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  let busy = false, maxRounds = 2, run = null;
+
+  function el(tag, cls, text) { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  // Small markdown renderer: headings, lists, bold, italics, and (source) citations as chips.
+  function inline(s) {
+    s = esc(s);
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>").replace(/(^|[^*])\*([^*\n]+)\*/g, "$1<em>$2</em>");
+    s = s.replace(/\(((?:source:?\s*)?[a-z0-9.-]+\.[a-z]{2,}(?:\/[^\s,;)]*)?(?:\s*[,;]\s*(?:source:?\s*)?[a-z0-9.-]+\.[a-z]{2,}(?:\/[^\s,;)]*)?)*)\)/gi, (m, list) =>
+      list.split(/\s*[,;]\s*/).map((x) => { const name = x.replace(/^source:?\s*/i, ""); return '<span class="src" data-src="' + name + '">' + name + "</span>"; }).join(" "));
+    return s;
+  }
+  function md(text) {
+    const out = []; let list = null;
+    const close = () => { if (list) { out.push("</" + list + ">"); list = null; } };
+    text.split("\n").forEach((raw) => {
+      const line = raw.trimEnd();
+      let m;
+      if (!line.trim()) { close(); return; }
+      if (/^\s*([-*_])\1{2,}\s*$/.test(line)) { close(); out.push("<hr>"); return; }
+      if ((m = /^(#{1,3})\s+(.*)$/.exec(line))) { close(); out.push("<h" + m[1].length + ">" + inline(m[2]) + "</h" + m[1].length + ">"); return; }
+      if ((m = /^\s*[-*]\s+(.*)$/.exec(line))) { if (list !== "ul") { close(); out.push("<ul>"); list = "ul"; } out.push("<li>" + inline(m[1]) + "</li>"); return; }
+      if ((m = /^\s*\d+[.)]\s+(.*)$/.exec(line))) { if (list !== "ol") { close(); out.push("<ol>"); list = "ol"; } out.push("<li>" + inline(m[1]) + "</li>"); return; }
+      close(); out.push("<p>" + inline(line) + "</p>");
+    });
+    close();
+    return out.join("");
+  }
+
+  function node(id, state) { const n = $("d-" + id); if (n) { n.classList.remove("on", "done"); if (state) n.classList.add(state); } }
+  function edgeOn(id) { document.querySelectorAll(".de").forEach((e) => e.classList.remove("on")); if (id) $(id).classList.add("on"); }
+  function resetDiagram() { ["plan", "search", "evaluate", "write_report"].forEach((n) => node(n, null)); edgeOn(null); }
+
+  function addEvent(cls, title, detail, items) {
+    const ev = el("div", "ev " + (cls || ""));
+    ev.appendChild(el("b", null, title));
+    if (detail) ev.appendChild(el("div", "d", detail));
+    (items || []).forEach((q) => ev.appendChild(el("span", "q", q)));
+    $("events").appendChild(ev);
+    ev.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    return ev;
+  }
+  let pending = null;
+  function working(title) { if (pending) pending.remove(); pending = addEvent("work", title); }
+  function settle() { if (pending) { pending.remove(); pending = null; } }
+
+  function showWriting() {
+    const w = $("report-wrap"); w.innerHTML = "";
+    const p = el("div", "paper");
+    const h = el("div", "writing"); h.append(el("span", "spin"), "Writing the report from " + run.notes.length + " findings...");
+    p.appendChild(h);
+    [92, 80, 96, 70, 88, 60].forEach((pct) => { const s = el("div", "shimmer"); s.style.width = pct + "%"; p.appendChild(s); });
+    w.appendChild(p);
+  }
+
+  function showReport(seconds) {
+    const w = $("report-wrap"); w.innerHTML = "";
+    const p = el("div", "paper");
+    p.appendChild(el("div", "kicker", "Research report"));
+    const stats = el("div", "stats");
+    stats.append(el("span", null, run.round + " search round" + (run.round === 1 ? "" : "s")), el("span", null, run.searched.length + " queries"), el("span", null, run.notes.length + " findings"), el("span", null, (seconds != null ? seconds + "s" : "")));
+    p.appendChild(stats);
+    const body = el("div", "md"); body.innerHTML = md(run.report || "");
+    if (!/^#\s/.test((run.report || "").trim())) body.insertAdjacentHTML("afterbegin", "<h1>" + esc(run.topic) + "</h1>");
+    p.appendChild(body);
+    const src = el("div", "sources"); src.appendChild(el("div", "side-h", "Sources the agent read"));
+    const ol = el("ol");
+    const seen = new Set();
+    run.notes.forEach((n) => { if (seen.has(n.source)) return; seen.add(n.source); const li = el("li"); li.dataset.src = n.source; li.append(el("b", null, n.source), " · " + n.content); ol.appendChild(li); });
+    src.appendChild(ol); p.appendChild(src);
+    w.appendChild(p); w.scrollTop = 0;
+    p.querySelectorAll(".src").forEach((chip) => chip.addEventListener("click", () => {
+      const li = ol.querySelector('li[data-src="' + CSS.escape(chip.dataset.src) + '"]');
+      if (li) { li.scrollIntoView({ block: "center", behavior: "smooth" }); li.classList.remove("flash"); void li.offsetWidth; li.classList.add("flash"); setTimeout(() => li.classList.remove("flash"), 1600); }
+    }));
+  }
+
+  function handle(msg) {
+    if (msg.step === "plan") {
+      settle(); node("plan", "done");
+      addEvent("", "Planned " + msg.pending_queries.length + " searches", "The model turned the topic into specific queries.", msg.pending_queries);
+      node("search", "on"); edgeOn("d-ps"); working("Searching...");
+    } else if (msg.step === "search") {
+      settle();
+      const added = msg.notes.length - run.notes.length;
+      run.notes = msg.notes; run.searched = msg.searched_queries; run.round = msg.round;
+      node("search", "done");
+      addEvent("", "Search round " + msg.round + ": " + added + " new finding" + (added === 1 ? "" : "s"), [...new Set(msg.notes.map((n) => n.source))].join(", "));
+      node("evaluate", "on"); edgeOn("d-se");
+      working(msg.round >= maxRounds ? "Round limit reached, moving on..." : "Checking if anything important is missing...");
+    } else if (msg.step === "evaluate") {
+      settle(); node("evaluate", "done");
+      if (msg.pending_queries.length) {
+        addEvent("warn", "Gap found, searching again", "The model asked for " + msg.pending_queries.length + " more quer" + (msg.pending_queries.length === 1 ? "y" : "ies") + ".", msg.pending_queries);
+        node("search", "on"); edgeOn("d-es"); working("Searching round " + (run.round + 1) + "...");
+      } else {
+        addEvent("", run.round >= maxRounds ? "Round limit reached" : "Enough to write", run.round >= maxRounds ? "Stopped after " + maxRounds + " rounds so it can't loop forever." : "No important gaps, so no extra searching.");
+        node("write_report", "on"); edgeOn("d-ew"); working("Writing the report..."); showWriting();
+      }
+    } else if (msg.step === "write_report") {
+      settle(); node("write_report", "done"); edgeOn(null);
+      run.report = msg.report;
+    }
+  }
+
+  function lock(v) { busy = v; $("go").disabled = v; $("topic").disabled = v; document.querySelectorAll("#topics button").forEach((b) => (b.disabled = v)); }
+
+  async function research(topic) {
+    topic = topic.trim();
+    if (topic.length < 3 || busy) return;
+    lock(true); resetDiagram();
+    run = { topic, notes: [], searched: [], round: 0, report: "" };
+    $("events").innerHTML = "";
+    node("plan", "on"); working("Planning the research...");
+    const w = $("report-wrap"); w.innerHTML = ""; const b = el("div", "blank"); b.append(el("h2", null, "Researching “" + topic + "”")); b.append(el("div", null, "The report appears here when the loop is done.")); w.appendChild(b);
+    try {
+      const res = await fetch("/api/research", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ topic }) });
+      if (!res.ok) throw new Error("Request failed (" + res.status + ")");
+      const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = "", seconds = null;
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buf += dec.decode(value, { stream: true });
+        let i;
+        while ((i = buf.indexOf("\n")) >= 0) {
+          const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1);
+          if (!line) continue;
+          const msg = JSON.parse(line);
+          if (msg.error) throw new Error(msg.error);
+          if (msg.done) { seconds = msg.seconds; continue; }
+          handle(msg);
+        }
+      }
+      settle();
+      addEvent("", "Report written", "Finished in " + seconds + "s.");
+      showReport(seconds);
+      document.body.dataset.finished = "1";
+    } catch (err) {
+      settle(); resetDiagram();
+      addEvent("warn", "Stopped", err.message);
+      const w2 = $("report-wrap"); w2.innerHTML = ""; w2.appendChild(el("div", "err", err.message));
+    } finally { lock(false); }
+  }
+
+  $("form").addEventListener("submit", (e) => { e.preventDefault(); research($("topic").value); });
+  fetch("/api/info").then((r) => r.json()).then((d) => {
+    $("model").textContent = d.model; $("search-src").textContent = "Search: " + d.search; maxRounds = d.max_rounds;
+    const t = $("topics");
+    if (d.demo_topics.length) {
+      t.append("Demo topics (no search key needed):");
+      d.demo_topics.forEach((x) => { const b = el("button", null, "The " + x.replace(/\bai\b/gi, "AI")); b.type = "button"; b.addEventListener("click", () => { $("topic").value = b.textContent; research(b.textContent); }); t.appendChild(b); });
+    } else t.append("Live web search is on, any topic works.");
+  }).catch(() => {});
+})();
+</script>
+</body>
+</html>
